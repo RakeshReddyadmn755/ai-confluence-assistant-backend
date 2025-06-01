@@ -1,0 +1,7 @@
+
+fastapi
+uvicorn
+openai
+chromadb
+beautifulsoup4
+python-dotenv
