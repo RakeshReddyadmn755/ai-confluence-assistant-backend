@@ -1,18 +1,15 @@
-
-import os
 from openai import OpenAI
-from .ingestor import query_collection
+import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def ask_question(question):
-    docs = query_collection(question)
-    context = docs['documents'][0][0] if docs['documents'] else ""
-    completion = client.chat.completions.create(
+def summarize_text(text: str):
+    chat_completion = client.chat.completions.create(
         model="gpt-4",
         messages=[
-            {"role": "system", "content": f"Use this context: {context}"},
-            {"role": "user", "content": question}
+            {"role": "system", "content": "You are an SRE Assistant. Format the input into:\n- What\n- So What\n- Now What\n- Owner\n- Due Date"},
+            {"role": "user", "content": text}
         ]
     )
-    return completion.choices[0].message.content
+    return chat_completion.choices[0].message.content
+
