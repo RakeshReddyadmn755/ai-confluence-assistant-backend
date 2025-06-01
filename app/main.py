@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from .openai_client import summarize_text
+from app.openai_client import summarize_text
 
 app = FastAPI()
 
+# Allow CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,10 +13,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class SREInput(BaseModel):
-    text: str
-
 @app.post("/summarize")
-def summarize(input: SREInput):
-    return {"summary": summarize_text(input.text)}
-
+async def summarize(request: Request):
+    data = await request.json()
+    text = data.get("text", "")
+    if not text:
+        return {"error": "No input text provided"}
+    
+    try:
+        summary = summarize_text(text)
+        return {"summary": summary}
+    except Exception as e:
+        return {"error": str(e)}
